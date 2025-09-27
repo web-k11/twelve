@@ -461,17 +461,19 @@ body {
     width: 100%;
     display: flex;
     align-items: flex-start;
+    align-items: center;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   padding: 2px 4px; /* 減少內邊距 */
   background: rgba(255, 255, 255, 0.5);
   margin-bottom: 0; /* 移除底部邊距，使用gap控制間距 */
-  align-items: center;
 }
 
 /* 調整群組標題樣式 */
 .category-group-title {
-  width:45px;
+  width: var(--max-title-width, max-content);
+  flex-shrink: 0;
+  margin-right: 0px;
   font-size: 0.875rem;
   font-weight: 600;
   color: #6b7280;
@@ -1036,6 +1038,28 @@ function updateLanguageFilterUI() {
 function updateCategoryFilterUI() {
   const categoryGroupsContainer = document.getElementById('category-groups');
   categoryGroupsContainer.innerHTML = '';
+
+//  --------------計算分類群組最大寬度---------------
+    let maxWidth = 0;
+    const tempDiv = document.createElement('h4');
+    // 複製 title 的關鍵樣式，確保計算出的寬度準確
+    tempDiv.style.visibility = 'hidden';
+    tempDiv.style.position = 'absolute';
+    tempDiv.style.whiteSpace = 'nowrap';
+    tempDiv.style.fontSize = '0.875rem'; // 必須與 .category-group-title 相同
+    tempDiv.style.fontWeight = '600'; // 必須與 .category-group-title 相同
+    document.body.appendChild(tempDiv);
+    
+    // 找出所有分類群組名稱中最長的寬度
+    Array.from(categoryGroups.keys()).forEach(groupName => {
+        tempDiv.textContent = groupName;
+        maxWidth = Math.max(maxWidth, tempDiv.offsetWidth);
+    });
+
+    // 將計算出的最大寬度（加上一些餘裕）設定為 CSS 變數
+    document.documentElement.style.setProperty('--max-title-width', `${maxWidth + 5}px`);
+    document.body.removeChild(tempDiv);
+// ---------------------------------------------------------------
 
   // 按照群組順序排序
   const sortedGroups = Array.from(categoryGroups.keys()).sort((a, b) => {
